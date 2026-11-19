@@ -1,0 +1,237 @@
+# Sanitized GitLab CI — quality, unit+integration coverage, Playwright e2e, Docker build (no push).
+# Showcase copy: secrets and internal project URLs removed / replaced with placeholders.
+
+workflow:
+  rules:
+    # Manual only — Run pipeline from the GitLab UI (CI_PIPELINE_SOURCE=web).
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+default:
+  image: node:22-bookworm
+  interruptible: true
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@12.6.0 --activate
+    - pnpm config set store-dir .pnpm-store
+    - pnpm install --frozen-lockfile
+
+variables:
+  NEXT_TELEMETRY_DISABLED: "1"
+  CI: "true"
+  DATABASE_OPTIONAL: "true"
+  DATABASE_URL: "mysql://user:password@localhost:3306/app_placeholder"
+  SESSION_SECRET: "ci-dummy-session-secret-at-least-32-chars"
+  UPLOAD_DIR: "./storage/uploads"
+  FF_USE_FASTZIP: "true"
+
+cache:
+  key:
+    files:
+      - pnpm-lock.yaml
+  paths:
+    - .pnpm-store
+
+stages:
+  - quality
+  - test
+  - build
+  - perf
+
+quality:
+  stage: quality
+  timeout: 10 minutes
+  script:
+    - pnpm format:check
+    - pnpm lint
+    - pnpm typecheck
+
+# Single coverage source: unit + integration against MySQL (combined Cobertura / badge).
+integration:
+  stage: test
+  needs: [quality]
+  timeout: 15 minutes
+  services:
+    - name: mysql:8.4
+      alias: mysql
+  variables:
+    MYSQL_ROOT_PASSWORD: "testroot"
+    MYSQL_DATABASE: "technova_test"
+    # Must end with _test — enforced by assertSafeIntegrationDatabase.
+    DATABASE_URL: "mysql://root:testroot@mysql:3306/technova_test"
+    DATABASE_OPTIONAL: "false"
+    NODE_ENV: "test"
+  script:
+    - mkdir -p reports
+    - |
+      set -euo pipefail
+      LOG=reports/integration-ci.log
+      {
+        echo "=== env ==="
+        echo "DATABASE_URL host/db (redacted user): $(echo "$DATABASE_URL" | sed -E 's#://[^:]+:[^@]+@#://***:***@#')"
+        echo "NODE_ENV=$NODE_ENV"
+        echo "=== prisma generate ==="
+        pnpm db:generate
+        echo "=== wait TCP ==="
+        node scripts/wait-for-mysql.mjs
+        echo "=== wait queries ==="
+        for i in $(seq 1 60); do
+          if echo "SELECT 1;" | pnpm exec prisma db execute --stdin --schema prisma/schema.prisma; then
+            echo "MySQL queries ready after ${i} attempt(s)"
+            break
+          fi
+          if [ "$i" -eq 60 ]; then
+            echo "ERROR: MySQL did not accept queries within timeout"
+            exit 1
+          fi
+          echo "query wait attempt $i failed; retrying..."
+          sleep 2
+        done
+        echo "=== migrate deploy ==="
+        pnpm exec prisma migrate deploy
+        echo "=== test:ci (unit + integration, combined coverage) ==="
+        pnpm test:ci
+      } 2>&1 | tee "$LOG"
+  coverage: '/Lines\s*:\s*(\d+(?:\.\d+)?)%/'
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - coverage/
+      - reports/
+    reports:
+      junit: reports/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+
+e2e:
+  stage: test
+  needs: [quality]
+  # Playwright v1.63.0-noble matches @playwright/test lock 1.63.0.
+  image: mcr.microsoft.com/playwright:v1.63.0-noble
+  timeout: 15 minutes
+  variables:
+    NEXT_PUBLIC_SITE_URL: "https://technova-eagle.com"
+    PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3000"
+    E2E_SERVER_LOG: "reports/e2e-server.log"
+    # Force listen address — ambient HOSTNAME in CI is the container name, not 0.0.0.0.
+    E2E_LISTEN_HOST: "0.0.0.0"
+  script:
+    - mkdir -p reports storage/uploads
+    - pnpm db:generate
+    - pnpm build
+    # output: "standalone" — do not use `next start` (Next 16 warning).
+    - |
+      set -e
+      : > "$E2E_SERVER_LOG"
+      node scripts/start-e2e-server.mjs &
+      SERVER_PID=$!
+      READY=0
+      for i in $(seq 1 60); do
+        if curl -sf "http://127.0.0.1:3000/en" >/dev/null; then
+          echo "Server ready after ${i} attempt(s)"
+          READY=1
+          break
+        fi
+        if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+          echo "ERROR: e2e server process exited before becoming ready (pid=$SERVER_PID)"
+          echo "----- last 100 lines of $E2E_SERVER_LOG -----"
+          tail -n 100 "$E2E_SERVER_LOG" || true
+          exit 1
+        fi
+        sleep 2
+      done
+      if [ "$READY" -ne 1 ]; then
+        echo "ERROR: e2e server did not respond at http://127.0.0.1:3000/en within 120s"
+        echo "----- last 100 lines of $E2E_SERVER_LOG -----"
+        tail -n 100 "$E2E_SERVER_LOG" || true
+        exit 1
+      fi
+    - pnpm test:e2e
+  artifacts:
+    when: on_failure
+    expire_in: 7 days
+    paths:
+      - reports/
+      - playwright-report/
+    reports:
+      junit: reports/e2e-junit.xml
+
+# Lab LCP/CLS floor regression only (achieved medians + CI noise margin).
+# No score/TBT targets — those were not chased. Filesystem artifacts only.
+lighthouse:
+  stage: perf
+  needs: [quality]
+  image: mcr.microsoft.com/playwright:v1.63.0-noble
+  timeout: 25 minutes
+  variables:
+    NEXT_PUBLIC_SITE_URL: "https://technova-eagle.com"
+    PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3000"
+    E2E_SERVER_LOG: "reports/lighthouse-server.log"
+    E2E_LISTEN_HOST: "0.0.0.0"
+    LIGHTHOUSE_RUNS: "3"
+  script:
+    - mkdir -p reports storage/uploads
+    - pnpm db:generate
+    - pnpm build
+    - |
+      set -e
+      : > "$E2E_SERVER_LOG"
+      node scripts/start-e2e-server.mjs &
+      SERVER_PID=$!
+      READY=0
+      for i in $(seq 1 60); do
+        if curl -sf "http://127.0.0.1:3000/en" >/dev/null; then
+          echo "Server ready after ${i} attempt(s)"
+          READY=1
+          break
+        fi
+        if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+          echo "ERROR: lighthouse server exited before ready (pid=$SERVER_PID)"
+          tail -n 100 "$E2E_SERVER_LOG" || true
+          exit 1
+        fi
+        sleep 2
+      done
+      if [ "$READY" -ne 1 ]; then
+        echo "ERROR: server did not respond within 120s"
+        tail -n 100 "$E2E_SERVER_LOG" || true
+        exit 1
+      fi
+    - pnpm perf:ci
+  artifacts:
+    when: always
+    expire_in: 14 days
+    paths:
+      - reports/lighthouse/
+      - reports/lighthouse-server.log
+
+docker:
+  stage: build
+  needs: [quality]
+  image: docker:27-cli
+  services:
+    - name: docker:27-dind
+      alias: docker
+  timeout: 15 minutes
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  before_script:
+    - docker info
+  script:
+    - |
+      docker build \
+        --build-arg NEXT_PUBLIC_SITE_URL=https://technova-eagle.com \
+        --tag technova-eagle:ci \
+        .
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - Dockerfile
+        - docker-compose.yml
+        - package.json
+        - pnpm-lock.yaml
