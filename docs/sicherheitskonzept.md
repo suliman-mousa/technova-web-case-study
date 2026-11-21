@@ -13,7 +13,7 @@ Related: [arc42 §11](architecture/arc42.md#11-risks-and-technical-debt), [ADR 0
 | Asset                     | Location / notes                                         |
 | ------------------------- | -------------------------------------------------------- |
 | Lead PII + form payloads  | MySQL (consultation, partnerships, careers)              |
-| Tracking access passwords | bcrypt hashes in DB; plaintext only at submit/email      |
+| Tracking access passwords | bcrypt hash + admin-only plaintext; unlocks file downloads only |
 | Admin credentials         | `User` table; `SESSION_SECRET` seals cookies             |
 | Uploaded files            | Configured `UPLOAD_DIR` / Docker upload volume           |
 | Session cookies           | `tn_admin_session`, `tn_tracking_session` (iron-session) |
@@ -51,7 +51,7 @@ flowchart LR
 | Surface             | Spoofing                         | Tampering                 | Repudiation       | Info disclosure                                     | DoS                            | Elevation                            |
 | ------------------- | -------------------------------- | ------------------------- | ----------------- | --------------------------------------------------- | ------------------------------ | ------------------------------------ |
 | Public forms        | Honeypot + optional Turnstile    | Zod + server validation   | DB row + email    | No password in JSON responses (integration asserts) | In-memory rate limit (5/h/key) | N/A (no auth)                        |
-| Tracking portal     | Password + sealed cookie         | Attachment validate/store | Portal actions    | noindex layouts                                     | Rate limit on unlock paths     | Cookie unlock ≠ admin                |
+| Tracking portal     | Status public by UUID; files need password + cookie | Attachment validate/store | Portal actions    | noindex layouts; password not auto-shown to lead | Rate limit on unlock paths     | Cookie unlock ≠ admin; file routes scoped to request |
 | Admin login/session | bcrypt + iron-session            | Session sealed            | Login API         | Admin noindex + redirect                            | **Open** dedicated login RL    | Admin session guards                 |
 | File upload/serve   | Sniff match extension (ADR 0007) | Reject type/large/missing | Stored path in DB | Media `nosniff`; **Open:** serve trusts stored ext  | Size caps per kind             | Admin file routes need admin session |
 
@@ -83,8 +83,8 @@ Status: **Met** / **Partially** / **Not met** / **N/A**. Evidence is concept or 
 | Item              | Status | Evidence                                              |
 | ----------------- | ------ | ----------------------------------------------------- |
 | Admin pages       | Met    | Admin redirect / session guards                       |
-| Tracking unlock   | Met    | Portal integration: wrong/correct password            |
-| Media/admin files | Met    | Admin file API under admin auth; public media by path |
+| Tracking unlock   | Met    | Portal integration: wrong/correct password for file access |
+| Media/admin files | Met    | Admin file API under admin auth; tracking file APIs need unlock cookie + request scope |
 
 ### V5 Validation / sanitization
 

@@ -25,7 +25,7 @@ Multilingual corporate website for TechNova Eagle: marketing (services, work, in
 | Stakeholder        | Interest                                               |
 | ------------------ | ------------------------------------------------------ |
 | Site visitors      | Services, trust, contact / consultation                |
-| Leads / partners   | Submit requests; track status via public ID + password |
+| Leads / partners   | Submit requests; track status via public ID; file downloads via access password |
 | Applicants         | Apply to job openings                                  |
 | Admin / staff      | Manage insights, careers, consultations, partnerships  |
 | Operators / devops | Docker + MySQL deploy, migrations, env config          |
@@ -145,8 +145,8 @@ C4Container
 1. Client posts `FormData` to `POST /api/consultation`.
 2. `processConsultationRequest`: if honeypot `website` filled → `discarded` (API returns fake **success**, no persist/email).
 3. Else: rate limit by IP → Turnstile verify → Zod → optional Resend delivery.
-4. On success: persist → grant tracking access → JSON with `redirectTo` `/{locale}/consultations/{publicId}`.
-5. Portal page: if tracking session unlocked, show status/meeting/deliverables; else password form → server action verifies access password hash → grant tracking access.
+4. On success: persist stores bcrypt `accessPasswordHash` plus plaintext `accessPassword` for admin share-only → JSON with `redirectTo` `/{locale}/consultations/{publicId}` (no auto-unlock; password not returned to the submitter).
+5. Portal page: status / meeting / complete-details / feedback are visible without a password. File downloads require the access password → verify access action → `grantTrackingAccess` (files only) → tracking file API routes.
 
 Partnership flow is analogous (`/api/partnership`, `/partnerships/status/{publicId}`).
 
@@ -310,7 +310,7 @@ Quality/test planning detail: [docs/testkonzept.md](../testkonzept.md). ISO mapp
 | RSC               | React Server Component (default on server)                                   |
 | Client island     | Client Component subtree hydrated for interactivity                          |
 | Locale prefix     | First path segment `en` \| `ar` \| `de`                                      |
-| Tracking portal   | Public status page unlocked by iron-session after password                   |
+| Tracking portal   | Public status page; file downloads unlocked by iron-session after password   |
 | Honeypot          | Hidden form field (`website`); bots fill it → discarded                      |
 | Turnstile         | Cloudflare bot challenge token verification                                  |
 | `APP_ENV`         | Explicit runtime environment for security fail-closed paths                  |
