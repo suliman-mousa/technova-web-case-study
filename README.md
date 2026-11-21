@@ -8,7 +8,7 @@ Public portfolio repository that documents the **quality system** behind [techno
 
 ## Kurzüberblick (DE)
 
-Mehrsprachige Unternehmenswebsite für **TechNova Eagle** (Live: [technova-eagle.com](https://technova-eagle.com)). Rolle: **Architekt und Lead-Entwickler**. Stack: Next.js 16, React 19, TypeScript, Prisma/MySQL, iron-session, Zod, Vitest, Playwright. Ergebnisse u. a.: **156** Tests (Unit + Integration + E2E), **53,95 %** kombinierte Line-Coverage, manuelles GitLab-CI mit lokalem `pnpm verify`, Security-Härten (Honeypot, Upload-Sniff, `APP_ENV`), WCAG-Prüfung (axe), Performance-Arbeit unter Design-Schutz. Dieses Repo enthält dokumentierte Architektur, ADRs, Konzepte und 4 Code-Ausschnitte — **keinen** produktiven Quellcode.
+Mehrsprachige Unternehmenswebsite für **TechNova Eagle** (Live: [technova-eagle.com](https://technova-eagle.com)). Rolle: **Architekt und Lead-Entwickler**. Stack: Next.js 16, React 19, TypeScript, Prisma/MySQL, iron-session, Zod, Vitest, Playwright. Ergebnisse u. a.: **159** Tests (142 Unit+Integration, 17 E2E, 100 % grün), **52,86 %** kombinierte Line-Coverage (vorher 40,66 %), Pipeline `#3085809308`, manuelles GitLab-CI mit lokalem `pnpm verify`, Security-Härten (Honeypot, Upload-Sniff, `APP_ENV`), WCAG-Prüfung (axe), Performance-Arbeit unter Design-Schutz. Dieses Repo enthält dokumentierte Architektur, ADRs, Konzepte und 4 Code-Ausschnitte — **keinen** produktiven Quellcode.
 
 ---
 
@@ -55,8 +55,8 @@ Content: typed TypeScript modules (`src/content/**`). UI: custom components (not
 
 | Area | Fact |
 | --- | --- |
-| Tests | **156** automated tests across unit + integration + e2e |
-| Coverage | **53.95%** combined line coverage (`src/lib/**` + `src/server/**`, unit + integration) |
+| Tests | **159** automated tests — **142** unit + integration, **17** e2e; **100%** passing (pipeline `#3085809308`) |
+| Coverage | **52.86%** combined line coverage (`src/lib/**` + `src/server/**`); was **40.66%** before the testing work |
 | CI design | Manual GitLab pipelines + local `pnpm verify`; combined MySQL coverage job — see [ci/](./ci/) |
 | Security | Honeypot discarded flow, file content↔extension sniff, `APP_ENV`, headers (partial CSP), rate limits, Turnstile |
 | Accessibility | WCAG 2.2 AA statement; axe suite; known visual limits: `color-contrast`, `target-size` |

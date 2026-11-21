@@ -10,7 +10,7 @@ Short phases from CHANGELOG facts, ADRs, and project docs. Problem → What I di
 
 **What I did.** Restricted GitLab `workflow.rules` to manual UI runs (`CI_PIPELINE_SOURCE == "web"`). Made local `pnpm verify` (`lint` + `typecheck` + `test` + `build`) the day-to-day gate, with Prettier via `format:check` ([ADR 0008](adr/0008-manual-ci-local-verify.md)). Combined unit + integration coverage into one MySQL job (`pnpm test:ci`).
 
-**Result.** Intentional full CI; lower spend; single Cobertura source for the coverage badge. Discipline required so main stays green.
+**Result.** Intentional full CI; lower spend; single Cobertura source for the coverage badge. Discipline required so main stays green. Measured on pipeline `#3085809308`: **159** tests (142 unit + integration, 17 e2e, 100% passing) and **52.86%** combined line coverage (up from **40.66%** before the testing work).
 
 ---
 

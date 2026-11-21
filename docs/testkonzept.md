@@ -49,8 +49,8 @@ Related: [arc42 §10](architecture/arc42.md#10-quality-requirements), [iso-align
 
 Coverage floors: lines ≥ 40%, functions ≥ 44%, branches ≥ 22% for `src/lib/**` + `src/server/**`.
 
-**Measured combined coverage (unit + integration):** **53.95%** lines.  
-**Automated tests counted across unit + integration + e2e:** **156**.
+**Measured combined coverage (unit + integration):** **52.86%** lines (pipeline `#3085809308`; was **40.66%** before the testing work).  
+**Automated tests:** **159** total — **142** unit + integration, **17** e2e; **100%** passing.
 
 ---
 
