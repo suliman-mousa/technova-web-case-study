@@ -3,8 +3,8 @@
 
 workflow:
   rules:
-    # Manual only — Run pipeline from the GitLab UI (CI_PIPELINE_SOURCE=web).
-    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 default:
   image: node:22-bookworm

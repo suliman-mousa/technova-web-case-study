@@ -135,4 +135,4 @@ Status: **Met** / **Partially** / **Not met** / **N/A**. Evidence is concept or 
 
 ## 4. Residual risks
 
-See [arc42 §11](architecture/arc42.md#11-risks-and-technical-debt): in-memory rate limit, no full CSP, file serve Content-Type trust, manual-only CI, optional Turnstile defaults off for some forms.
+See [arc42 §11](architecture/arc42.md#11-risks-and-technical-debt): in-memory rate limit, no full CSP, file serve Content-Type trust, optional Turnstile defaults off for some forms.

@@ -18,7 +18,7 @@ Maps to [arc42 §10](architecture/arc42.md#10-quality-requirements).
 | Usability / accessibility    | Semantic hero copy; reduced-motion helpers          | motion-preference, canvas-live           | Full a11y score targets **Open**     |
 | Reliability                  | `migrate deploy` fail-closed; optional DB marketing | Docker entrypoint; DB safe wrappers      | —                                    |
 | Security                     | Sessions, RL, honeypot, Turnstile, sniff, headers   | sicherheitskonzept; ADRs 0002/0006/0007  | Full CSP, re-sniff serve **Open**    |
-| Maintainability              | Typed content, Vitest, Playwright, `pnpm verify`    | package scripts, vitest thresholds       | CI visual gate removed **Open**      |
+| Maintainability              | Typed content, Vitest, Playwright, CI quality gates | package scripts, vitest thresholds       | CI visual gate removed **Open**      |
 | Portability                  | Docker standalone Node 22                           | Dockerfile, `.nvmrc`                     | Playwright CI image Node 24 **Open** |
 
 ---
@@ -28,7 +28,7 @@ Maps to [arc42 §10](architecture/arc42.md#10-quality-requirements).
 | Requirement              | Implementation                        | Evidence                     | Gap |
 | ------------------------ | ------------------------------------- | ---------------------------- | --- |
 | Architecture viewpoints  | arc42 document                        | `docs/architecture/arc42.md` | —   |
-| Decision records         | MADR ADRs 0001–0008                   | `docs/adr/`                  | —   |
+| Decision records         | MADR ADRs 0001–0007                   | `docs/adr/`                  | —   |
 | Stakeholder concerns     | arc42 §1.3                            | Same                         | —   |
 | Rationale / consequences | ADR Context / Decision / Consequences | Each ADR                     | —   |
 
@@ -41,7 +41,7 @@ Maps to [arc42 §10](architecture/arc42.md#10-quality-requirements).
 | Test planning / design docs | Testkonzept (29119-3 oriented) | `docs/testkonzept.md`          | —                   |
 | Test levels                 | Unit, integration, e2e, perf   | Vitest, Playwright, lighthouse | —                   |
 | Risk-based focus            | Product risk table             | testkonzept §2                 | RTL visual **Open** |
-| Exit criteria               | Coverage floors + verify       | Vitest thresholds, ADR 0008    | —                   |
+| Exit criteria               | Coverage floors + CI jobs      | Vitest thresholds, [ci/](../ci/) | —                 |
 
 ---
 
@@ -56,7 +56,7 @@ Alignment only — no ISMS certification.
 | A.8.13  | Information backup                | Ops: MySQL dump + upload volume (runbook, private)  | Operations docs not published in this showcase  | No automated backup job in repo         |
 | A.8.15  | Logging                           | Entrypoint / app error logs; CI artifacts           | Docker logs; GitLab artifacts                   | Central SIEM **Open**                   |
 | A.8.24  | Use of cryptography               | bcrypt; sealed cookies; HTTPS/HSTS expected in prod | password/session helpers; security headers      | DB/disk encryption host-side **Open**   |
-| A.8.25  | Secure development life cycle     | Local verify + manual CI; design-protection         | ADR 0008; `docs/engineering-rules/design-protection.md` | Auto pipeline on push intentionally off |
+| A.8.25  | Secure development life cycle     | GitLab CI + design-protection                       | `docs/engineering-rules/design-protection.md`; [ci/](../ci/) | —                                   |
 | A.8.26  | Application security requirements | Forms defense-in-depth; upload sniff                | arc42 §4; ADRs 0006–0007                        | Full CSP **Open**                       |
 | A.8.27  | Secure system architecture        | Server-first; trust boundaries documented           | arc42; sicherheitskonzept                       | —                                       |
 | A.8.28  | Secure coding                     | Zod, typed TS, ESLint, Prettier                     | `pnpm lint` / `format:check`                    | —                                       |

@@ -2,7 +2,7 @@
 
 ISTQB vocabulary; document structure aligned with ISO/IEC/IEEE 29119-3 (test plan / test design). Evidence from code, Vitest, Playwright, and CI only. Gaps marked **Open**.
 
-Related: [arc42 §10](architecture/arc42.md#10-quality-requirements), [iso-alignment.md](iso-alignment.md), [ADR 0008](adr/0008-manual-ci-local-verify.md).
+Related: [arc42 §10](architecture/arc42.md#10-quality-requirements), [iso-alignment.md](iso-alignment.md), [ci/](../ci/).
 
 ---
 
@@ -12,7 +12,7 @@ Related: [arc42 §10](architecture/arc42.md#10-quality-requirements), [iso-align
 
 - Public locale site (`en` / `ar` / `de`), lead forms (consultation, partnership, careers), tracking portals, admin auth surfaces that have tests.
 - SEO machine routes (`robots`, `sitemap`, `llms.txt`), upload validation, rate limit helper, Turnstile helper, i18n path helpers, motion/canvas smoke.
-- Local gate `pnpm verify`; manual GitLab pipeline (see [ci/](../ci/)).
+- GitLab CI pipeline (see [ci/](../ci/)).
 
 **Out of scope / not automated today**
 
@@ -69,9 +69,9 @@ Coverage floors: lines ≥ 40%, functions ≥ 44%, branches ≥ 22% for `src/lib
 
 | Environment                         | Notes                                                                     |
 | ----------------------------------- | ------------------------------------------------------------------------- |
-| Local                               | Node 22; `pnpm verify` = lint + typecheck + unit + build                  |
+| Local                               | Node 22; lint + typecheck + unit + build                                  |
 | Local integration                   | MySQL URL must end with `_test` (`assertSafeIntegrationDatabase`)         |
-| GitLab (manual `web` pipeline only) | Jobs: `quality`, `integration` (MySQL 8.4), `e2e`, `lighthouse`, `docker` |
+| GitLab CI                           | Jobs: `quality`, `integration` (MySQL 8.4), `e2e`, `lighthouse`, `docker` |
 
 ---
 
@@ -83,7 +83,7 @@ Coverage floors: lines ≥ 40%, functions ≥ 44%, branches ≥ 22% for `src/lib
 
 **Exit (merge-ready for docs/code changes that touch tested areas)**
 
-- `pnpm verify` green locally.
+- CI quality + test jobs green for the change set.
 - Coverage thresholds not lowered.
 - Relevant unit/integration/e2e updated when behaviour changes.
 - For perf-sensitive changes: CI lighthouse floors still pass when pipeline is run.
@@ -111,6 +111,6 @@ Coverage floors: lines ≥ 40%, functions ≥ 44%, branches ≥ 22% for `src/lib
 | No automated RTL visual / dir=rtl assertion | Playwright screenshot or `dir`/`lang` smoke on `/ar`   |
 | robots.txt still allows private HTML paths  | After Search Console de-index: Disallow + e2e assert   |
 | Serving path does not re-sniff Content-Type | Unit/integration on media Content-Type vs bytes        |
-| No CI visual gate                           | **Open** by design (ADR 0008 + design-protection)      |
+| No CI visual gate                           | **Open** by design (design-protection; local visual review) |
 | Live Turnstile / Resend                     | Optional staging smoke (manual)                        |
 | Multi-instance rate limit                   | Documented accepted risk (arc42 §11); no shared store  |

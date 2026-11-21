@@ -29,7 +29,7 @@ Multilingual corporate website for TechNova Eagle: marketing (services, work, in
 | Applicants         | Apply to job openings                                  |
 | Admin / staff      | Manage insights, careers, consultations, partnerships  |
 | Operators / devops | Docker + MySQL deploy, migrations, env config          |
-| Developers         | Typed content, small client surface, local verify gate |
+| Developers         | Typed content, small client surface, CI quality gates  |
 
 ---
 
@@ -41,7 +41,7 @@ Multilingual corporate website for TechNova Eagle: marketing (services, work, in
 - **Content:** Typed TypeScript modules under `src/content/**` — no MDX / CMS in tree.
 - **UI:** Custom `src/components/ui/*` — not shadcn/Radix.
 - **Design protection:** Colors, motion, 3D, copy, RTL must not change without explicit approval (`docs/engineering-rules/design-protection.md`).
-- **CI:** GitLab pipelines are **manual-only** (`CI_PIPELINE_SOURCE == web`); local `pnpm verify` is the day-to-day gate.
+- **CI:** GitLab CI/CD on merge requests and the default branch (quality, integration coverage, e2e, Docker, Lighthouse floors).
 - **Secrets:** No secrets via `NEXT_PUBLIC_*`; `SESSION_SECRET` required for sessions.
 - **Optional DB:** Marketing site can boot without MySQL (`DATABASE_OPTIONAL` / placeholder URL).
 
@@ -249,9 +249,8 @@ ADRs (MADR) in [`docs/adr/`](../adr/):
 | [0005](../adr/0005-server-first-client-islands.md)    | Server-first rendering with client islands   |
 | [0006](../adr/0006-honeypot-fake-success.md)          | Honeypot discarded but fake success          |
 | [0007](../adr/0007-file-content-matches-extension.md) | File content must match extension            |
-| [0008](../adr/0008-manual-ci-local-verify.md)         | Manual-only CI + local verify gate           |
 
-Cross-cutting docs: [testkonzept](../testkonzept.md), [sicherheitskonzept](../sicherheitskonzept.md), [iso-alignment](../iso-alignment.md) (alignment only, not certification), [barrierefreiheit](../barrierefreiheit.md), [engineering-journey](../engineering-journey.md).
+Cross-cutting docs: [testkonzept](../testkonzept.md), [sicherheitskonzept](../sicherheitskonzept.md), [iso-alignment](../iso-alignment.md) (alignment only, not certification), [barrierefreiheit](../barrierefreiheit.md), [seo-geo-architecture](../seo-geo-architecture.md), [engineering-journey](../engineering-journey.md).
 
 ---
 
@@ -267,7 +266,7 @@ Quality/test planning detail: [docs/testkonzept.md](../testkonzept.md). ISO mapp
 - **Usability / accessibility** — Semantic HTML for hero copy; reduced-motion respected for enhancement; **Open:** full a11y score targets.
 - **Reliability** — Migrate deploy fail-closed; optional DB for marketing-only boot.
 - **Security** — Sessions, rate limits, honeypot, Turnstile, upload sniffing, security headers (partial CSP).
-- **Maintainability** — Typed content, Vitest + Playwright, `pnpm verify`, Prettier/ESLint.
+- **Maintainability** — Typed content, Vitest + Playwright, CI quality gates, Prettier/ESLint.
 - **Portability** — Docker standalone on Node 22.
 
 ### 10.2 Scenarios
@@ -277,7 +276,7 @@ Quality/test planning detail: [docs/testkonzept.md](../testkonzept.md). ISO mapp
 | Q1  | Submit consultation as human            | 200 + redirect to portal; row in DB                                                                     | Functional suitability               |
 | Q2  | Bot fills honeypot                      | HTTP success-shaped response; **no** DB row / email                                                     | Security                             |
 | Q3  | Publish insight                         | Listing/RSS paths revalidated; IndexNow when configured                                                 | Functional + Performance (freshness) |
-| Q4  | `pnpm verify` locally                   | lint + typecheck + unit + build pass                                                                    | Maintainability                      |
+| Q4  | CI quality job                          | format + lint + typecheck pass                                                                          | Maintainability                      |
 | Q5  | Docker start with bad migration history | Container exits (migrate deploy fails)                                                                  | Reliability                          |
 | Q6  | Mobile LCP floors                       | CI `perf:ci` floor assertions; medians documented in `docs/performance/`                                | Performance efficiency               |
 | Q7  | Visual identity                         | Design-protection rule; local visual review — **Open:** automated screenshot gate in CI removed         | Maintainability / Usability          |
@@ -291,9 +290,7 @@ Quality/test planning detail: [docs/testkonzept.md](../testkonzept.md). ISO mapp
 | In-memory rate limit (`Map` in process)               | **Accepted risk** | Resets on restart; not shared across instances                                                            |
 | No full CSP                                           | **Open**          | Only `frame-ancestors 'none'`; js-class script documents future hash/nonce                                |
 | MySQL as sole DB                                      | **Accepted**      | Operational coupling to MySQL                                                                             |
-| CI pipelines manual only                              | **Accepted**      | `workflow.rules`: `web` source only; rely on `pnpm verify`                                                |
 | Arabic font / `/ar` LCP                               | **Open**          | Preload approach reverted (competed with LCP image + metric drift); lab stop rule unmet on `/ar` (~4.9 s) |
-| Dead code: unused R3F hero scene                      | **Open**          | Not mounted; keep three.js stack out of client bundles until reused                                       |
 | Dead code: unused consultation action helper          | **Open**          | UI posts to `/api/consultation`                                                                           |
 | File serve trusts stored extension for `Content-Type` | **Open**          | Sniff at upload; media routes do not re-sniff                                                             |
 | Playwright CI image Node 24 vs app Node 22            | **Open**          | Documented as known mismatch                                                                              |
@@ -316,5 +313,4 @@ Quality/test planning detail: [docs/testkonzept.md](../testkonzept.md). ISO mapp
 | `APP_ENV`         | Explicit runtime environment for security fail-closed paths                  |
 | GEO               | Generative-engine / AI discovery content practices (llms.txt, entity)        |
 | IndexNow          | Protocol to notify search engines of URL changes                             |
-| `pnpm verify`     | Local gate: lint + typecheck + test + build                                  |
 | Design protection | Rule forbidding silent visual/design regressions                             |

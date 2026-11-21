@@ -2,7 +2,7 @@
 
 **Status:** partially conformant  
 **Scope:** public marketing pages (home, services, work, case studies, contact/consultation, careers) in `en`, `ar`, and `de`.  
-**Automated check:** `pnpm test:a11y` (Playwright + `@axe-core/playwright`, desktop Chromium). Not part of `pnpm verify`.
+**Automated check:** Playwright + `@axe-core/playwright` (desktop Chromium), **21** routes (7 pages × `en` / `ar` / `de`). Evidence: [a11y-results.png](../evidence/a11y-results.png).
 
 ## Conformance statement
 

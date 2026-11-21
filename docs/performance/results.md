@@ -35,7 +35,7 @@ Stop rule at final `5f88e0d`: **not met** — `/ar` (4923) and `/de` (4309) rema
 | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | Arabic font strategy that does not compete with LCP and keeps metrics identical | Needs a new approach (keep `next/font` size-adjust; avoid High contention) |
 | Further TBT / main-thread cuts                                                  | Stop rule not met on `/ar`; wait for decision                              |
-| Insights cache / ADR / dead HeroScene bundle / other backlog                    | Explicitly postponed earlier                                               |
+| Insights cache / ADR / unused client-bundle backlog                             | Explicitly postponed earlier                                               |
 
 ## CI floors
 

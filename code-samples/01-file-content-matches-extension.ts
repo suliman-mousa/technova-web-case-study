@@ -12,7 +12,7 @@ const MIME_BY_EXTENSION: Record<string, string> = {
   ".webp": "image/webp",
 };
 
-async function assertContentMatchesExtension(
+export async function assertContentMatchesExtension(
   buffer: Buffer,
   ext: string,
   allowedMimes: string[],
@@ -27,5 +27,3 @@ async function assertContentMatchesExtension(
   }
   return "ok";
 }
-
-void assertContentMatchesExtension;
