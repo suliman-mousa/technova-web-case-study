@@ -66,10 +66,10 @@ Content: typed TypeScript modules (`src/content/**`). UI: custom components (not
 
 ## How I work
 
-AI-assisted development with **Cursor** under explicit project rules:
+Development under explicit project rules:
 
-- **Design protection** — visual identity is a business asset; no silent regressions for perf/a11y/refactors ([`.cursor/rules/design-protection.mdc`](./.cursor/rules/design-protection.mdc))
-- **Project rules** — no silent outbound telemetry; no secret logging ([`.cursor/rules/project.mdc`](./.cursor/rules/project.mdc))
+- **Design protection** — visual identity is a business asset; no silent regressions for perf/a11y/refactors ([design-protection.md](./docs/engineering-rules/design-protection.md))
+- **Project rules** — no silent outbound telemetry; no secret logging ([project.md](./docs/engineering-rules/project.md))
 - **Test-first bug fixes** — e.g. honeypot persistence caught by failing integration cases before the `discarded` fix
 - **Small reversible commits** — including explicit reverts when experiments fail the design bar (Arabic font preload)
 
@@ -113,7 +113,7 @@ Full architecture: [docs/architecture/arc42.md](./docs/architecture/arc42.md).
 | [docs/engineering-journey.md](./docs/engineering-journey.md) | Problem → action → result by phase |
 | [docs/domain-model.md](./docs/domain-model.md) | Entities & relations (no sensitive fields) |
 | [docs/i18n-content-architecture.md](./docs/i18n-content-architecture.md) | Typed content, locales, RTL, SEO |
-| [`.cursor/rules/`](./.cursor/rules/) | Design protection + project rules |
+| [docs/engineering-rules/](./docs/engineering-rules/) | Design protection + project rules |
 | [ci/](./ci/) | Sanitized GitLab CI + design notes |
 | [code-samples/](./code-samples/) | Four short excerpts only |
 | [evidence/](./evidence/) | Placeholder for screenshots you add |

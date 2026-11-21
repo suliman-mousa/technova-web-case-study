@@ -48,7 +48,7 @@ Short phases from CHANGELOG facts, ADRs, and project docs. Problem → What I di
 
 **Problem.** Architecture and quality practice lived mostly in code and chat — hard to show employers or onboard reviewers.
 
-**What I did.** Wrote arc42, MADR ADRs 0001–0008, testkonzept (29119-oriented), sicherheitskonzept (STRIDE + selected ASVS), ISO alignment (not certification), accessibility statement, and performance results. Cursor rules encode design protection and no-secret/no-silent-external-CI habits.
+**What I did.** Wrote arc42, MADR ADRs 0001–0008, testkonzept (29119-oriented), sicherheitskonzept (STRIDE + selected ASVS), ISO alignment (not certification), accessibility statement, and performance results. Engineering rules encode design protection and no-secret/no-silent-external-CI habits.
 
 **Result.** Durable, reviewable architecture and quality evidence without publishing the private app source.
 

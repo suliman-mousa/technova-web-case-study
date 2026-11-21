@@ -40,7 +40,7 @@ Multilingual corporate website for TechNova Eagle: marketing (services, work, in
 - **Locales:** Prefixed routes (`/en`, `/ar`, `/de`); default `en`; locale redirect in `src/proxy.ts` (not `middleware.ts`).
 - **Content:** Typed TypeScript modules under `src/content/**` — no MDX / CMS in tree.
 - **UI:** Custom `src/components/ui/*` — not shadcn/Radix.
-- **Design protection:** Colors, motion, 3D, copy, RTL must not change without explicit approval (`.cursor/rules/design-protection.mdc`).
+- **Design protection:** Colors, motion, 3D, copy, RTL must not change without explicit approval (`docs/engineering-rules/design-protection.md`).
 - **CI:** GitLab pipelines are **manual-only** (`CI_PIPELINE_SOURCE == web`); local `pnpm verify` is the day-to-day gate.
 - **Secrets:** No secrets via `NEXT_PUBLIC_*`; `SESSION_SECRET` required for sessions.
 - **Optional DB:** Marketing site can boot without MySQL (`DATABASE_OPTIONAL` / placeholder URL).

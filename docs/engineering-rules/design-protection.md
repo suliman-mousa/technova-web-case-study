@@ -1,7 +1,3 @@
----
-description: Design protection — the visual identity of the site must never be degraded
-alwaysApply: true
----
 # Design protection (highest priority rule)
 
 The visual design, style and feel of this website are a core business asset. No task — performance, security, accessibility, refactoring, testing, dependency updates — may reduce its aesthetics or change how it looks or behaves for the user without my explicit approval.
@@ -31,3 +27,5 @@ The visual design, style and feel of this website are a core business asset. No 
 1. Visual regression screenshots (Playwright toHaveScreenshot) for key pages in en and ar, desktop and mobile, must pass unchanged.
 2. If a visual change seems necessary (for example an accessibility contrast fix, or a security header that blocks an effect), STOP. Show me before/after screenshots and 2-3 options, starting with the smallest visual change, and wait for my decision.
 3. If a target (performance score, accessibility rule) cannot be met without a visual change, report the trade-off and the best result achievable without it. The design wins unless I decide otherwise.
+
+

@@ -56,7 +56,7 @@ Alignment only — no ISMS certification.
 | A.8.13  | Information backup                | Ops: MySQL dump + upload volume (runbook, private)  | Operations docs not published in this showcase  | No automated backup job in repo         |
 | A.8.15  | Logging                           | Entrypoint / app error logs; CI artifacts           | Docker logs; GitLab artifacts                   | Central SIEM **Open**                   |
 | A.8.24  | Use of cryptography               | bcrypt; sealed cookies; HTTPS/HSTS expected in prod | password/session helpers; security headers      | DB/disk encryption host-side **Open**   |
-| A.8.25  | Secure development life cycle     | Local verify + manual CI; design-protection         | ADR 0008; `.cursor/rules/design-protection.mdc` | Auto pipeline on push intentionally off |
+| A.8.25  | Secure development life cycle     | Local verify + manual CI; design-protection         | ADR 0008; `docs/engineering-rules/design-protection.md` | Auto pipeline on push intentionally off |
 | A.8.26  | Application security requirements | Forms defense-in-depth; upload sniff                | arc42 §4; ADRs 0006–0007                        | Full CSP **Open**                       |
 | A.8.27  | Secure system architecture        | Server-first; trust boundaries documented           | arc42; sicherheitskonzept                       | —                                       |
 | A.8.28  | Secure coding                     | Zod, typed TS, ESLint, Prettier                     | `pnpm lint` / `format:check`                    | —                                       |
